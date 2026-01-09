@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WARRICK WALLET | Professional Finance Tracker</title>
+    <!-- Tailwind CSS for rapid, scalable styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ios-bg: #f2f2f7;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background-color: var(--ios-bg);
+            color: #1c1c1e;
+        }
+        .ios-glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+        }
+        .ios-widget {
+            transition: transform 0.4s cubic-bezier(0.15, 0, 0.2, 1), box-shadow 0.4s ease;
+            border-radius: 2.2rem;
+        }
+        .ios-widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+        }
+        .ios-button {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .ios-button:active {
+            transform: scale(0.96);
+            opacity: 0.8;
+        }
+        #app-container.modal-open {
+            transform: scale(0.985);
+            filter: blur(12px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-active {
+            animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="overflow-x-hidden">
+    <!-- Main UI -->
+    <div id="app-container" class="w-full min-h-screen py-8 px-6 md:px-12 lg:px-20 transition-all duration-500 ease-out">
+        <header class="max-w-[1400px] mx-auto flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tighter text-slate-900">
+                    WARRICK WALLET<span class="text-blue-600">.</span>
+                </h1>
+                <p class="text-[11px] font-black text-blue-600 uppercase tracking-[0.4em] ml-0.5 opacity-80">POWERED BY ARVIN</p>
+            </div>
+            
+            <div class="flex items-center gap-5 ios-glass p-2 pl-6 rounded-full border border-white shadow-xl shadow-slate-200/50">
+                <div class="text-right hidden sm:block">
+                    <p id="ui-role" class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">USER</p>
+                    <p id="ui-name" class="text-base font-bold text-slate-900 tracking-tight">User</p>
+                </div>
+                <button id="btn-open-profile" class="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden ios-button border-2 border-white ring-2 ring-blue-500/5 shadow-sm">
+                    <img id="ui-avatar" src="" alt="avatar" class="w-full h-full object-cover">
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-[1400px] mx-auto space-y-10">
+            <!-- Stats Dashboard -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6" id="stats-container"></section>
+
+            <!-- Form -->
+            <section class="ios-glass p-10 rounded-[3rem] border border-white shadow-2xl shadow-slate-200/40 relative">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-1.5 h-7 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Financial Input</h3>
+                </div>
+                <div id="form-container"></div>
+            </section>
+
+            <!-- History -->
+            <section class="ios-glass rounded-[3.5rem] border border-white shadow-2xl shadow-slate-200/40 overflow-hidden" id="history-container"></section>
+        </main>
+
+        <footer class="mt-20 pb-16 text-center">
+            <p class="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-400">Arvin Hanif Architecture • Static Web Build</p>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 bg-slate-900/10 backdrop-blur-[40px]">
+        <!-- Login -->
+        <div id="login-modal" class="hidden bg-white p-12 rounded-[4rem] w-full max-w-md shadow-2xl border border-white">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-blue-600 rounded-[2rem] mx-auto mb-6 flex items-center justify-center text-white shadow-xl shadow-blue-500/30">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900">Security Check</h2>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-2">Administrator Access Only</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <input id="login-id" type="text" placeholder="Admin ID" class="w-full px-8 py-5 bg-slate-50 rounded-3xl outline-none font-bold text-slate-900 border-2 border-transparent focus:border-blue-500/20 transition-all">
+                <input id="login-pass" type="password" placeholder="Passkey" class="w-full px-8 py-5 bg-slate-50 rounded-3xl outline-none font-bold text-slate-900 border-2 border-transparent focus:border-blue-500/20 transition-all">
+                <p id="login-error" class="hidden text-rose-500 text-[10px] font-black text-center uppercase tracking-widest bg-rose-50 py-3 rounded-2xl">Access Denied</p>
+                <button type="submit" class="w-full py-5 bg-blue-600 text-white font-black rounded-3xl ios-button shadow-xl shadow-blue-600/20 uppercase tracking-[0.2em] text-sm">Unlock Console</button>
+                <button type="button" id="btn-close-login" class="w-full text-[10px] text-slate-400 font-bold uppercase tracking-[0.4em] pt-6">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Profile / Settings -->
+        <div id="profile-modal" class="hidden bg-white p-12 rounded-[4rem] w-full max-w-xl shadow-2xl border border-white">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-4xl font-black text-slate-900 tracking-tighter">Settings</h2>
+                <button id="btn-close-profile" class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 ios-button hover:bg-slate-100 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"/></svg>
+                </button>
+            </div>
+            <div class="space-y-10">
+                <div class="flex items-center gap-6 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                    <div class="w-20 h-20 rounded-full bg-white border-2 border-white overflow-hidden shadow-lg">
+                        <img id="modal-avatar" src="" alt="avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Display Name</p>
+                        <input id="input-display-name" type="text" class="w-full bg-transparent border-none outline-none text-2xl font-black text-slate-900">
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Preferred Currency</p>
+                    <div class="grid grid-cols-3 gap-4" id="currency-selector">
+                        <button data-currency="৳" class="currency-btn py-6 rounded-3xl font-black text-2xl ios-button">৳</button>
+                        <button data-currency="$" class="currency-btn py-6 rounded-3xl font-black text-2xl ios-button">$</button>
+                        <button data-currency="€" class="currency-btn py-6 rounded-3xl font-black text-2xl ios-button">€</button>
+                    </div>
+                </div>
+                <div id="admin-actions"></div>
+                <button id="btn-save-settings" class="w-full py-5 bg-slate-900 text-white font-black rounded-3xl ios-button shadow-xl uppercase tracking-[0.3em] text-sm mt-4">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use unique keys for GitHub pages isolation
+        const STORAGE_KEY = 'warrick_v2_data';
+        const PROFILE_KEY = 'warrick_v2_profile';
+
+        let state = {
+            profile: JSON.parse(localStorage.getItem(PROFILE_KEY)) || { name: 'User', currency: '৳', role: 'USER' },
+            transactions: JSON.parse(localStorage.getItem(STORAGE_KEY)) || []
+        };
+
+        const updateLocalStorage = () => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions));
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(state.profile));
+            render();
+        };
+
+        const renderStatCard = (label, amount, type) => {
+            const isBalance = type === 'balance';
+            const color = type === 'income' ? 'text-emerald-600' : (type === 'expense' ? 'text-rose-600' : 'text-slate-900');
+            return `
+                <div class="ios-widget p-7 ios-glass ${isBalance ? 'bg-blue-600 text-white shadow-blue-500/20' : 'bg-white shadow-slate-200/50'} flex flex-col justify-between h-40">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] ${isBalance ? 'text-blue-100' : 'text-slate-400'}">${label}</p>
+                    <h2 class="text-3xl font-black tabular-nums tracking-tighter ${isBalance ? 'text-white' : color}">
+                        <span class="text-lg font-medium opacity-60 mr-1">${state.profile.currency}</span>${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </h2>
+                </div>
+            `;
+        };
+
+        const render = () => {
+            // Identity
+            document.getElementById('ui-name').textContent = state.profile.name;
+            document.getElementById('ui-role').textContent = state.profile.role;
+            document.getElementById('ui-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${state.profile.name}`;
+            document.getElementById('modal-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${state.profile.name}`;
+            document.getElementById('input-display-name').value = state.profile.name;
+
+            // Stats
+            const income = state.transactions.filter(t => t.type === 'INCOME').reduce((a, b) => a + b.amount, 0);
+            const expense = state.transactions.filter(t => t.type === 'EXPENSE').reduce((a, b) => a + b.amount, 0);
+            document.getElementById('stats-container').innerHTML = `
+                ${renderStatCard('Net Balance', income - expense, 'balance')}
+                ${renderStatCard('Total Income', income, 'income')}
+                ${renderStatCard('Total Expense', expense, 'expense')}
+            `;
+
+            // Form
+            const formContainer = document.getElementById('form-container');
+            if (state.profile.role === 'ADMIN') {
+                formContainer.innerHTML = `
+                    <form id="tx-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input required id="tx-desc" type="text" placeholder="Memo" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none outline-none font-bold">
+                        <input required id="tx-amount" type="number" step="0.01" placeholder="0.00" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none outline-none font-bold">
+                        <select id="tx-type" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none outline-none font-bold cursor-pointer">
+                            <option value="EXPENSE">Expense</option>
+                            <option value="INCOME">Income</option>
+                        </select>
+                        <button type="submit" class="bg-blue-600 text-white font-black py-4 rounded-2xl ios-button shadow-lg shadow-blue-600/20 uppercase tracking-widest text-xs">Add Entry</button>
+                    </form>
+                `;
+                document.getElementById('tx-form').onsubmit = (e) => {
+                    e.preventDefault();
+                    const amt = parseFloat(document.getElementById('tx-amount').value);
+                    if (isNaN(amt)) return;
+                    state.transactions.unshift({
+                        id: Date.now().toString(),
+                        description: document.getElementById('tx-desc').value,
+                        amount: amt,
+                        type: document.getElementById('tx-type').value,
+                        date: new Date().toLocaleDateString()
+                    });
+                    updateLocalStorage();
+                };
+            } else {
+                formContainer.innerHTML = `<div class="py-10 text-center text-slate-300 font-bold uppercase tracking-[0.3em] text-[10px]">Log in as Admin to manage entries</div>`;
+            }
+
+            // History
+            const history = document.getElementById('history-container');
+            history.innerHTML = `
+                <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-white/50">
+                    <h3 class="text-xl font-black text-slate-900 tracking-tight">Ledger</h3>
+                    <span class="text-[9px] font-black bg-slate-900 text-white px-3 py-1 rounded-full uppercase">${state.transactions.length} Logs</span>
+                </div>
+                <div class="max-h-[500px] overflow-y-auto px-4 py-4">
+                    ${state.transactions.length === 0 ? '<p class="py-16 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">No Records Found</p>' : 
+                    state.transactions.map(t => `
+                        <div class="flex items-center justify-between p-5 hover:bg-white rounded-3xl transition-all mb-1">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center ${t.type === 'INCOME' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 11l5 5 5-5M12 4v12" stroke-width="3" class="${t.type === 'INCOME' ? 'rotate-180' : ''}"/></svg>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">${t.description}</h4><p class="text-[9px] text-slate-400 font-bold">${t.date}</p></div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <p class="text-base font-black tabular-nums ${t.type === 'INCOME' ? 'text-emerald-600' : 'text-slate-900'}">${t.type === 'INCOME' ? '+' : '-'}${state.profile.currency}${t.amount.toLocaleString()}</p>
+                                ${state.profile.role === 'ADMIN' ? `<button onclick="removeLog('${t.id}')" class="text-slate-200 hover:text-rose-500 transition-colors"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg></button>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Admin Logic
+            document.getElementById('admin-actions').innerHTML = state.profile.role === 'USER' ? 
+                `<button onclick="showLogin()" class="w-full py-5 border-2 border-dashed border-slate-200 text-slate-400 font-black rounded-3xl uppercase text-[10px] tracking-widest ios-button hover:border-blue-200 hover:text-blue-500">Admin Authentication</button>` :
+                `<button onclick="deauth()" class="w-full py-5 bg-rose-50 text-rose-600 font-black rounded-3xl uppercase text-[10px] tracking-widest ios-button">Sign Out</button>`;
+
+            // Currencies
+            document.querySelectorAll('.currency-btn').forEach(btn => {
+                const active = btn.dataset.currency === state.profile.currency;
+                btn.className = `currency-btn py-6 rounded-3xl font-black text-2xl ios-button ${active ? 'bg-blue-600 text-white shadow-xl' : 'bg-slate-50 text-slate-400'}`;
+            });
+        };
+
+        window.removeLog = (id) => { state.transactions = state.transactions.filter(t => t.id !== id); updateLocalStorage(); };
+        window.deauth = () => { state.profile.role = 'USER'; state.profile.name = 'User'; updateLocalStorage(); };
+        window.showLogin = () => { toggleModal('profile-modal', false); toggleModal('login-modal', true); };
+        
+        function toggleModal(id, show) {
+            document.getElementById('modal-overlay').classList.toggle('hidden', !show);
+            document.getElementById('modal-overlay').classList.toggle('flex', show);
+            document.getElementById('app-container').classList.toggle('modal-open', show);
+            document.getElementById(id).classList.toggle('hidden', !show);
+            if (show) document.getElementById(id).classList.add('modal-active');
+        }
+
+        document.getElementById('btn-open-profile').onclick = () => toggleModal('profile-modal', true);
+        document.getElementById('btn-close-profile').onclick = () => toggleModal('profile-modal', false);
+        document.getElementById('btn-close-login').onclick = () => toggleModal('login-modal', false);
+
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('login-id').value;
+            const pw = document.getElementById('login-pass').value;
+            if (id === 'Arvin_Hanif' && pw === 'Arvin_Hanif') {
+                state.profile.role = 'ADMIN'; state.profile.name = 'Arvin Hanif'; toggleModal('login-modal', false); updateLocalStorage();
+            } else { document.getElementById('login-error').classList.remove('hidden'); }
+        };
+
+        document.getElementById('btn-save-settings').onclick = () => {
+            state.profile.name = document.getElementById('input-display-name').value || 'User'; 
+            toggleModal('profile-modal', false); 
+            updateLocalStorage();
+        };
+
+        document.querySelectorAll('.currency-btn').forEach(btn => {
+            btn.onclick = () => { state.profile.currency = btn.dataset.currency; render(); };
+        });
+
+        // Initial Load
+        render();
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
