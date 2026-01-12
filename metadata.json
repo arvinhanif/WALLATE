@@ -1,0 +1,7 @@
+{
+  "name": "DreamCanvas AI",
+  "description": "An advanced AI-powered image generation application using Gemini 2.5 Flash Image technology to turn your textual prompts into stunning visual art.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
